@@ -165,10 +165,12 @@ def send_warning(contract_id, a):
 
 
 def sender():
+    global last_push
     while True:
         if time.time() - last_push > 60 * 60 * 24:
             for contract_id in contracts:
                 send(contract_id)
+            last_push = time.time()
         time.sleep(60)
 
 
