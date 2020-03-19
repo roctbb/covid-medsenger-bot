@@ -7,6 +7,7 @@ import requests
 import hashlib, uuid
 from config import *
 import threading
+import datetime
 
 app = Flask(__name__)
 contracts = set()
@@ -167,7 +168,8 @@ def send_warning(contract_id, a):
 def sender():
     global last_push
     while True:
-        if time.time() - last_push > 60 * 60 * 24:
+        now = datetime.datetime.now()
+        if time.time() - last_push > 60 * 60 * 24 and now.hour > 10 and now.hour < 20:
             for contract_id in contracts:
                 send(contract_id)
             last_push = time.time()
