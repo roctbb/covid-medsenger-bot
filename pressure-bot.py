@@ -19,16 +19,23 @@ def delayed(delay, f, args):
 
 def load():
     global contracts
+    global last_push
     try:
         with open('data.json', 'r') as f:
-            contracts = set(json.load(f))
+            data = json.load(f)
+            last_push = data['last_push']
+            contracts = set(data['contracts'])
     except:
         save()
 
 def save():
     global contracts
+    global last_push
     with open('data.json', 'w') as f:
-        json.dump(list(contracts), f)
+        json.dump({
+            "last_push": last_push,
+            "contracts": list(contracts)
+        }, f)
 
 def check_digit(number):
     try:
@@ -128,13 +135,12 @@ def send(contract_id):
     save()
 
 
-def send_warning(contract_id, a, b):
+def send_warning(contract_id, a):
     data1 = {
         "contract_id": contract_id,
         "api_key": APP_KEY,
         "message": {
-            "text": "У вас наблюдаются вероятные симптому COVID-19. Мы уже направили уведомление вашему врачу.".format(
-                a, b),
+            "text": "У вас наблюдаются вероятные симптомы COVID-19. Мы уже направили уведомление вашему врачу.",
             "is_urgent": True,
             "only_patient": True,
         }
@@ -144,7 +150,7 @@ def send_warning(contract_id, a, b):
         "contract_id": contract_id,
         "api_key": APP_KEY,
         "message": {
-            "text": "У пациента наблюдаются сиптомы COVID 19 ({}).".format(', '.join(a)),
+            "text": "У пациента наблюдаются вероятные симптомы COVID 19 ({}).".format(', '.join(a)),
             "is_urgent": True,
             "only_doctor": True,
             "need_answer": True
@@ -206,14 +212,14 @@ def action_save():
         warnings.append('температура выше 38')
     if request.form.get('ad', 'normal') != 'normal':
         warnings.append('давление выходит за рамки нормы')
-    if request.form.get('sorethroat', 'normal') != 'normal': # боль в горле
-        warnings.append('боль в горле')
+    if request.form.get('pulse', 'normal') != 'normal': # боль в горле
+        warnings.append('пульс в покое выходит за рамки нормы')
     if request.form.get('snuffle', 'normal'): # насморк
-        warnings.append('кашель')
+        warnings.append('кашель с кровью в мокроте')
     if request.form.get('sputum', 'normal'): # мокрота
-        warnings.append('насморк')
+        warnings.append('насморк с примесью крови и гнойными выделениями')
     if request.form.get('weakness', 'normal'):
-        warnings.append('слабость')
+        warnings.append('сильная слабость')
     if request.form.get('myalgia', 'normal'):
         warnings.append('боль в мышцах')
     if request.form.get('tightness', 'normal'):
@@ -238,4 +244,4 @@ actions = [{
     "link": HOST + "/graph"
 }]
 print(json.dumps(actions))
-app.run(port='9091', host='0.0.0.0')
+app.run(port='9101', host='0.0.0.0')
