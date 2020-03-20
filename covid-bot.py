@@ -141,7 +141,7 @@ def send_warning(contract_id, a):
         "contract_id": contract_id,
         "api_key": APP_KEY,
         "message": {
-            "text": "У вас наблюдаются вероятные симптомы COVID-19. Мы уже направили уведомление вашему врачу.",
+            "text": "Мы направили уведомление о симптомах вашему лечащему врачу, он свяжется с вами в ближайшее время.",
             "is_urgent": True,
             "only_patient": True,
         }
