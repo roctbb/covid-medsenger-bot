@@ -11,7 +11,6 @@ import datetime
 
 app = Flask(__name__)
 contracts = {}
-last_push = 0
 
 
 def delayed(delay, f, args):
@@ -24,9 +23,7 @@ def load():
     global last_push
     try:
         with open('data.json', 'r') as f:
-            data = json.load(f)
-            last_push = data['last_push']
-            contracts = data['contracts']
+            contracts = json.load(f)
     except:
         save()
 
@@ -35,10 +32,7 @@ def save():
     global contracts
     global last_push
     with open('data.json', 'w') as f:
-        json.dump({
-            "last_push": last_push,
-            "contracts": contracts
-        }, f)
+        json.dump(contracts, f)
 
 
 def check_digit(number):
@@ -178,19 +172,20 @@ def sender():
     global last_push
     while True:
         now = datetime.datetime.now()
-        if now.hour == 0:
+        print(now.hour)
+        if now.hour == 1:
             for contract_id in contracts:
-                if contracts[contract_id]['mode'] in ['once', 'double', 'triple'] and time.time() - contracts[contract_id][last_push] > 60 * 60:
+                if contracts[contract_id]['mode'] in ['once', 'double', 'triple'] and time.time() - contracts[contract_id]['last_push'] > 60 * 60:
                     send(contract_id)
                     contracts[contract_id][last_push] = time.time()
         if now.hour == 10:
             for contract_id in contracts:
-                if contracts[contract_id]['mode'] in ['double', 'triple'] and time.time() - contracts[contract_id][last_push] > 60 * 60:
+                if contracts[contract_id]['mode'] in ['double', 'triple'] and time.time() - contracts[contract_id]['last_push'] > 60 * 60:
                     send(contract_id)
                     contracts[contract_id][last_push] = time.time()
         if now.hour == 15:
             for contract_id in contracts:
-                if contracts[contract_id]['mode'] in ['triple'] and time.time() - contracts[contract_id][last_push] > 60 * 60:
+                if contracts[contract_id]['mode'] in ['triple'] and time.time() - contracts[contract_id]['last_push'] > 60 * 60:
                     send(contract_id)
                     contracts[contract_id][last_push] = time.time()
         save()

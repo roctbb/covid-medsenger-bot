@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Настройка канала консультирования</title>
+    <title>COVID-19: Настройка канала консультирования</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
 <h4>COVID-19: Настройка канала консультирования</h4>
@@ -10,9 +12,9 @@
     <div class="form-group">
         <strong>Частота отправки опросника:</strong>
         <select name="mode" class="form-control">
-            <option value="once">Ежедневно</option>
-            <option value="double">Еженедельно</option>
-            <option value="triple">Ежемесячно</option>
+            <option value="once"{% if contract['mode'] == 'once' %} selected {%  endif %}>Ежедневно</option>
+            <option value="double"{% if contract['mode'] == 'double' %} selected {%  endif %}>Еженедельно</option>
+            <option value="triple"{% if contract['mode'] == 'truple' %} selected {%  endif %}>Ежемесячно</option>
         </select>
     </div>
     <div class="form-group">
