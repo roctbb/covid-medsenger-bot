@@ -20,7 +20,6 @@ def delayed(delay, f, args):
 
 def load():
     global contracts
-    global last_push
     try:
         with open('data.json', 'r') as f:
             contracts = json.load(f)
@@ -30,7 +29,6 @@ def load():
 
 def save():
     global contracts
-    global last_push
     with open('data.json', 'w') as f:
         json.dump(contracts, f)
 
@@ -169,7 +167,7 @@ def send_warning(contract_id, a):
 
 
 def sender():
-    global last_push
+    global contracts
     while True:
         now = datetime.datetime.now()
         print(now.hour)
@@ -177,17 +175,17 @@ def sender():
             for contract_id in contracts:
                 if contracts[contract_id]['mode'] in ['once', 'double', 'triple'] and time.time() - contracts[contract_id]['last_push'] > 60 * 60:
                     send(contract_id)
-                    contracts[contract_id][last_push] = time.time()
+                    contracts[contract_id]['last_push'] = time.time()
         if now.hour == 10:
             for contract_id in contracts:
                 if contracts[contract_id]['mode'] in ['double', 'triple'] and time.time() - contracts[contract_id]['last_push'] > 60 * 60:
                     send(contract_id)
-                    contracts[contract_id][last_push] = time.time()
+                    contracts[contract_id]['last_push'] = time.time()
         if now.hour == 15:
             for contract_id in contracts:
                 if contracts[contract_id]['mode'] in ['triple'] and time.time() - contracts[contract_id]['last_push'] > 60 * 60:
                     send(contract_id)
-                    contracts[contract_id][last_push] = time.time()
+                    contracts[contract_id]['last_push'] = time.time()
         save()
         time.sleep(60)
 
