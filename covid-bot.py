@@ -10,8 +10,9 @@ import threading
 import datetime
 
 app = Flask(__name__)
-contracts = set()
+contracts = {}
 last_push = 0
+
 
 def delayed(delay, f, args):
     timer = threading.Timer(delay, f, args=args)
@@ -25,9 +26,10 @@ def load():
         with open('data.json', 'r') as f:
             data = json.load(f)
             last_push = data['last_push']
-            contracts = set(data['contracts'])
+            contracts = data['contracts']
     except:
         save()
+
 
 def save():
     global contracts
@@ -35,8 +37,9 @@ def save():
     with open('data.json', 'w') as f:
         json.dump({
             "last_push": last_push,
-            "contracts": list(contracts)
+            "contracts": contracts
         }, f)
+
 
 def check_digit(number):
     try:
@@ -48,16 +51,6 @@ def check_digit(number):
 
 load()
 
-def delayed(delay, f, args):
-    timer = threading.Timer(delay, f, args=args)
-    timer.start()
-
-def check_digit(number):
-    try:
-        int(number)
-        return True
-    except:
-        return False
 
 @app.route('/init', methods=['POST'])
 def init():
@@ -67,7 +60,10 @@ def init():
         return 'invalid key'
 
     contract_id = str(data['contract_id'])
-    contracts.add(contract_id)
+    contracts[contract_id] = {
+        "mode": "once",
+        "last_push": 0
+    }
     save()
 
     return 'ok'
@@ -81,7 +77,8 @@ def remove():
         return 'invalid key'
 
     contract_id = str(data['contract_id'])
-    contracts.discard(contract_id)
+    if contract_id in contracts:
+        del contracts[contract_id]
     save()
 
     return 'ok'
@@ -94,7 +91,12 @@ def settings():
     if key != APP_KEY:
         return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
 
-    return "Этот интеллектуальный агент не требует настройки."
+    contract_id = request.args.get('contract_id', '')
+
+    if contract_id not in contracts:
+        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заного подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+
+    return render_template('settings.html', contract=contracts[contract_id])
 
 
 @app.route('/', methods=['GET'])
@@ -108,6 +110,13 @@ def setting_save():
 
     if key != APP_KEY:
         return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
+
+    contract_id = request.args.get('contract_id', '')
+    if contract_id not in contracts:
+        return "<strong>Запрашиваемый канал консультирования не найден.</strong> Попробуйте отключить и заного подключить интеллектуального агента. Если это не сработает, свяжитесь с технической поддержкой."
+
+    contracts[contract_id]['mode'] = request.form.get('mode', 'once')
+    save()
 
     return """
         <strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal-success','*');</script>
@@ -169,10 +178,22 @@ def sender():
     global last_push
     while True:
         now = datetime.datetime.now()
-        if time.time() - last_push > 60 * 60 * 24 and now.hour > 10 and now.hour < 20:
+        if now.hour == 0:
             for contract_id in contracts:
-                send(contract_id)
-            last_push = time.time()
+                if contracts[contract_id]['mode'] in ['once', 'double', 'triple'] and time.time() - contracts[contract_id][last_push] > 60 * 60:
+                    send(contract_id)
+                    contracts[contract_id][last_push] = time.time()
+        if now.hour == 10:
+            for contract_id in contracts:
+                if contracts[contract_id]['mode'] in ['double', 'triple'] and time.time() - contracts[contract_id][last_push] > 60 * 60:
+                    send(contract_id)
+                    contracts[contract_id][last_push] = time.time()
+        if now.hour == 15:
+            for contract_id in contracts:
+                if contracts[contract_id]['mode'] in ['triple'] and time.time() - contracts[contract_id][last_push] > 60 * 60:
+                    send(contract_id)
+                    contracts[contract_id][last_push] = time.time()
+        save()
         time.sleep(60)
 
 
@@ -216,11 +237,11 @@ def action_save():
         warnings.append('температура выше 38')
     if request.form.get('ad', 'normal') != 'normal':
         warnings.append('давление выходит за рамки нормы')
-    if request.form.get('pulse', 'normal') != 'normal': # боль в горле
+    if request.form.get('pulse', 'normal') != 'normal':  # боль в горле
         warnings.append('пульс в покое выходит за рамки нормы')
-    if request.form.get('snuffle', 'normal'): # насморк
+    if request.form.get('snuffle', 'normal'):  # насморк
         warnings.append('кашель с кровью в мокроте')
-    if request.form.get('sputum', 'normal'): # мокрота
+    if request.form.get('sputum', 'normal'):  # мокрота
         warnings.append('насморк с примесью крови и гнойными выделениями')
     if request.form.get('weakness', 'normal'):
         warnings.append('сильная слабость')
@@ -228,7 +249,7 @@ def action_save():
         warnings.append('боль в мышцах')
     if request.form.get('tightness', 'normal'):
         warnings.append('тяжесть в грудной клетке')
-    if request.form.get('dyspnea', 'normal'): # отдышка
+    if request.form.get('dyspnea', 'normal'):  # отдышка
         warnings.append('отдышка')
 
     if len(warnings) != 0:
