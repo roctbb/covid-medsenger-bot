@@ -171,7 +171,7 @@ def sender():
     while True:
         now = datetime.datetime.now()
         print(now.hour)
-        if now.hour == 1:
+        if now.hour == 21:
             for contract_id in contracts:
                 if contracts[contract_id]['mode'] in ['once', 'double', 'triple'] and time.time() - contracts[contract_id]['last_push'] > 60 * 60:
                     send(contract_id)
