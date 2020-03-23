@@ -228,7 +228,7 @@ def action_save():
 
     if request.form.get('temperature', ''):
         warnings.append('температура выше 38')
-    if request.form.get('ad', 'normal'):
+    if request.form.get('ad', ''):
         warnings.append('давление выходит за рамки нормы')
     if request.form.get('pulse', ''):  # боль в горле
         warnings.append('пульс в покое выходит за рамки нормы')
