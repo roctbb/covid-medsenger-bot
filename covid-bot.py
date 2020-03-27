@@ -227,23 +227,23 @@ def action_save():
 
     warnings = []
 
-    if request.form.get('temperature', 'normal') != 'normal':
+    if request.form.get('temperature', ''):
         warnings.append('температура выше 38')
-    if request.form.get('ad', 'normal') != 'normal':
+    if request.form.get('ad', ''):
         warnings.append('давление выходит за рамки нормы')
-    if request.form.get('pulse', 'normal') != 'normal':  # боль в горле
+    if request.form.get('pulse', ''):  # боль в горле
         warnings.append('пульс в покое выходит за рамки нормы')
-    if request.form.get('snuffle', 'normal'):  # насморк
+    if request.form.get('snuffle', ''):  # насморк
         warnings.append('кашель с кровью в мокроте')
-    if request.form.get('sputum', 'normal'):  # мокрота
+    if request.form.get('sputum', ''):  # мокрота
         warnings.append('насморк с примесью крови и гнойными выделениями')
-    if request.form.get('weakness', 'normal'):
+    if request.form.get('weakness', ''):
         warnings.append('сильная слабость')
-    if request.form.get('myalgia', 'normal'):
+    if request.form.get('myalgia', ''):
         warnings.append('боль в мышцах')
-    if request.form.get('tightness', 'normal'):
+    if request.form.get('tightness', ''):
         warnings.append('тяжесть в грудной клетке')
-    if request.form.get('dyspnea', 'normal'):  # отдышка
+    if request.form.get('dyspnea', ''):  # отдышка
         warnings.append('отдышка')
 
     if len(warnings) != 0:
