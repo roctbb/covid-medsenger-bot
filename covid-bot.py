@@ -126,7 +126,7 @@ def send(contract_id):
             "action_onetime": True,
             "only_doctor": False,
             "only_patient": True,
-            "deadline": int(time.time()) + 6 * 60 * 60
+            "action_deadline": int(time.time()) + 6 * 60 * 60
         }
     }
     try:
