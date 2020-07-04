@@ -53,7 +53,7 @@ def status():
     answer = {
         "is_tracking_data": True,
         "supported_scenarios": [],
-        "tracked_contracts": [contract_id for contract_id in contracts]
+        "tracked_contracts": [int(contract_id) for contract_id in contracts]
     }
 
     return json.dumps(answer)
