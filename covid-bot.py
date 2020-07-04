@@ -43,6 +43,20 @@ def check_digit(number):
 
 load()
 
+@app.route('/status', methods=['POST'])
+def status():
+    data = request.json
+
+    if data['api_key'] != APP_KEY:
+        return 'invalid key'
+
+    answer = {
+        "is_tracking_data": True,
+        "supported_scenarios": [],
+        "tracked_contracts": [contract_id for contract_id in contracts]
+    }
+
+    return json.dumps(answer)
 
 @app.route('/init', methods=['POST'])
 def init():
