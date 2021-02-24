@@ -180,28 +180,30 @@ def send_warning(contract_id, a):
     except Exception as e:
         print('connection error', e)
 
+def tasks():
+    now = datetime.datetime.now()
+    print(now.hour)
+    if now.hour == 21:
+        for contract_id in contracts:
+            if contracts[contract_id]['mode'] in ['once', 'double', 'triple'] and time.time() - contracts[contract_id]['last_push'] > 60 * 60:
+                send(contract_id)
+                contracts[contract_id]['last_push'] = time.time()
+    if now.hour == 10:
+        for contract_id in contracts:
+            if contracts[contract_id]['mode'] in ['double', 'triple'] and time.time() - contracts[contract_id]['last_push'] > 60 * 60:
+                send(contract_id)
+                contracts[contract_id]['last_push'] = time.time()
+    if now.hour == 15:
+        for contract_id in contracts:
+            if contracts[contract_id]['mode'] in ['triple'] and time.time() - contracts[contract_id]['last_push'] > 60 * 60:
+                send(contract_id)
+                contracts[contract_id]['last_push'] = time.time()
+    save()
 
 def sender():
     global contracts
     while True:
-        now = datetime.datetime.now()
-        print(now.hour)
-        if now.hour == 21:
-            for contract_id in contracts:
-                if contracts[contract_id]['mode'] in ['once', 'double', 'triple'] and time.time() - contracts[contract_id]['last_push'] > 60 * 60:
-                    send(contract_id)
-                    contracts[contract_id]['last_push'] = time.time()
-        if now.hour == 10:
-            for contract_id in contracts:
-                if contracts[contract_id]['mode'] in ['double', 'triple'] and time.time() - contracts[contract_id]['last_push'] > 60 * 60:
-                    send(contract_id)
-                    contracts[contract_id]['last_push'] = time.time()
-        if now.hour == 15:
-            for contract_id in contracts:
-                if contracts[contract_id]['mode'] in ['triple'] and time.time() - contracts[contract_id]['last_push'] > 60 * 60:
-                    send(contract_id)
-                    contracts[contract_id]['last_push'] = time.time()
-        save()
+        tasks()
         time.sleep(60)
 
 
@@ -269,12 +271,8 @@ def action_save():
     <strong>Спасибо, окно можно закрыть</strong><script>window.parent.postMessage('close-modal-success','*');</script>
     """
 
+if __name__ == "__main__":
+    t = Thread(target=sender)
+    t.start()
 
-t = Thread(target=sender)
-t.start()
-actions = [{
-    "name": "График давления",
-    "link": HOST + "/graph"
-}]
-print(json.dumps(actions))
-app.run(port='9101', host='0.0.0.0')
+    app.run(port=PORT, host=HOST)
