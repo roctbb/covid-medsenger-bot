@@ -45,6 +45,8 @@ def status():
     if data['api_key'] != APP_KEY:
         return 'invalid key'
 
+    load()
+
     answer = {
         "is_tracking_data": True,
         "supported_scenarios": [],
@@ -56,6 +58,8 @@ def status():
 @app.route('/init', methods=['POST'])
 def init():
     data = request.json
+
+    load()
 
     if data['api_key'] != APP_KEY:
         return 'invalid key'
@@ -74,6 +78,8 @@ def init():
 def remove():
     data = request.json
 
+    load()
+
     if data['api_key'] != APP_KEY:
         return 'invalid key'
 
@@ -88,6 +94,8 @@ def remove():
 @app.route('/settings', methods=['GET'])
 def settings():
     key = request.args.get('api_key', '')
+
+    load()
 
     if key != APP_KEY:
         return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
@@ -108,6 +116,7 @@ def index():
 @app.route('/settings', methods=['POST'])
 def setting_save():
     key = request.args.get('api_key', '')
+    load()
 
     if key != APP_KEY:
         return "<strong>Некорректный ключ доступа.</strong> Свяжитесь с технической поддержкой."
@@ -176,6 +185,7 @@ def send_warning(contract_id, a):
         print('connection error', e)
 
 def tasks():
+    load()
     now = datetime.datetime.now()
     print(now.hour)
     if now.hour == 21:
@@ -216,6 +226,7 @@ def save_message():
 @app.route('/frame', methods=['GET'])
 def action():
     key = request.args.get('api_key', '')
+    load()
     contract_id = str(request.args.get('contract_id', ''))
 
     if key != APP_KEY:
@@ -229,6 +240,7 @@ def action():
 @app.route('/frame', methods=['POST'])
 def action_save():
     key = request.args.get('api_key', '')
+    load()
     contract_id = request.args.get('contract_id', '')
 
     if key != APP_KEY:
