@@ -13,11 +13,6 @@ app = Flask(__name__)
 contracts = {}
 
 
-def delayed(delay, f, args):
-    timer = threading.Timer(delay, f, args=args)
-    timer.start()
-
-
 def load():
     global contracts
     try:
@@ -263,7 +258,7 @@ def action_save():
         warnings.append('отдышка')
 
     if len(warnings) != 0:
-        delayed(1, send_warning, [contract_id, warnings])
+        send_warning(contract_id, warnings)
 
     save()
 
